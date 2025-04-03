@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
 from PyQt6.QtCore import Qt
 import google.generativeai as genai
 
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
