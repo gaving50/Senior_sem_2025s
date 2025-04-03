@@ -9,6 +9,7 @@ from pptx import Presentation
 import pythoncom
 from win32com.client import Dispatch
 import xlrd
+from pymongo import MongoClient
 
 def timer(func):
     @wraps(func)
@@ -80,6 +81,42 @@ def write_file_info_to_csv(file_paths, csv_file_path):
                 print(f"Error processing {file_path}: {e}")
     print(f"\nFile information has been written to {csv_file_path}")
 
+def write_file_info_to_mongodb(file_paths, mongo_uri, db_name, collection_name):
+    """
+    Writes file information to a MongoDB database and tracks file formats processed and errors.
+    """
+    client = MongoClient(mongo_uri)
+    db = client[db_name]
+    collection = db[collection_name]
+
+    processed_formats = set()
+    error_formats = set()
+
+    for file_path in file_paths:
+        try:
+            file_info = get_file_info(file_path)
+            document = {
+                "file_name": file_info[0],
+                "file_type": file_info[1],
+                "file_size": file_info[2],
+                "file_data": file_info[3]
+            }
+            collection.insert_one(document)
+            processed_formats.add(file_info[1].lower())  # Track successfully processed formats
+        except Exception as e:
+            print(f"Error processing {file_path}: {e}")
+            error_formats.add(os.path.splitext(file_path)[1].lower())  # Track formats causing errors
+
+    print("\nProcessed file formats:")
+    for fmt in processed_formats:
+        print(fmt)
+
+    print("\nFile formats that caused errors:")
+    for fmt in error_formats:
+        print(fmt)
+
+    print(f"\nFile information has been written to MongoDB collection '{collection_name}' in database '{db_name}'.")
+
 @timer
 def main():
     # Define the root directory to start the search
@@ -102,9 +139,13 @@ def main():
     for file in found_files_os_walk:
         print(file)
     
-    # Write file information to CSV
-    csv_file_path = os.path.join(os.getcwd(), 'file_info.csv')
-    write_file_info_to_csv(found_files_os_walk, csv_file_path)
+    # MongoDB connection details
+    mongo_uri = "mongodb://localhost:27017/"  # Update with your MongoDB URI
+    db_name = "file_data_db"
+    collection_name = "file_info"
+
+    # Write file information to MongoDB and track formats
+    write_file_info_to_mongodb(found_files_os_walk, mongo_uri, db_name, collection_name)
 
 if __name__ == "__main__":
     main()
