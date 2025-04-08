@@ -10,6 +10,7 @@ import pythoncom
 from win32com.client import Dispatch
 import xlrd
 from pymongo import MongoClient
+from dotenv import load_dotenv
 
 def timer(func):
     @wraps(func)
@@ -81,6 +82,14 @@ def write_file_info_to_csv(file_paths, csv_file_path):
                 print(f"Error processing {file_path}: {e}")
     print(f"\nFile information has been written to {csv_file_path}")
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Get MongoDB URI from environment variables
+mongo_uri = os.getenv("MONGO_URI")
+db_name = "DB-Files"
+collection_name = "Files-Data"
+
 def write_file_info_to_mongodb(file_paths, mongo_uri, db_name, collection_name):
     """
     Writes file information to a MongoDB database and tracks file formats processed and errors.
@@ -127,7 +136,7 @@ def main():
         "*.txt", "*.md",  # Existing file types
         "*.pdf",          # PDF files
         "*.doc", "*.docx",# Microsoft Word files
-        "*.xls", "*.xlsx",# Microsoft Excel files
+        # "*.xls", "*.xlsx",# Microsoft Excel files
         "*.ppt", "*.pptx" # Microsoft PowerPoint files
     ]
     
@@ -139,11 +148,6 @@ def main():
     for file in found_files_os_walk:
         print(file)
     
-    # MongoDB connection details
-    mongo_uri = "mongodb://localhost:27017/"  # Update with your MongoDB URI
-    db_name = "file_data_db"
-    collection_name = "file_info"
-
     # Write file information to MongoDB and track formats
     write_file_info_to_mongodb(found_files_os_walk, mongo_uri, db_name, collection_name)
 
