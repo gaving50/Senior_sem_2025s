@@ -22,6 +22,14 @@ def display_resource_usage(cpu_usage, memory_usage, disk_usage, bars, cpu_usage_
     disk_usage_data.append(disk_usage)
     time_data.append(time.time())
 
+    # Limit the data to the last 10 seconds
+    cpu_usage_data = cpu_usage_data[-10:]
+    memory_usage_data = memory_usage_data[-10:]
+    disk_usage_data = disk_usage_data[-10:]
+    time_data = time_data[-10:]
+
+
+
     # Update the plots
     ax[0].cla()
     ax[1].cla()
