@@ -4,7 +4,15 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import google.generativeai as genai
 from PyQt6.QtCore import Qt
+from functools import partial
 
+# file imports
+from update import do_update
+
+
+
+
+# main window
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -114,6 +122,14 @@ class MainWindow(QMainWindow):
         
         # Add the canvas to the layout
         layout.addWidget(self.canvas)
+
+        # Add button to start/stop performance monitoring
+        self.start_performance_button = QPushButton("Start/Stop Tracking")
+        self.start_performance_button.setCheckable(True)  # Make the button toggleable
+        self.start_performance_button.clicked.connect(
+            lambda: do_update(self.start_performance_button.isChecked(), self.ax)
+        )
+        layout.addWidget(self.start_performance_button)
     
     def setup_settings_tab(self):
         # Create layout for the settings tab

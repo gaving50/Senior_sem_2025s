@@ -9,9 +9,9 @@ def display_resource_usage(cpu_usage, memory_usage, disk_usage, bars, cpu_usage_
     cpu_percentage = cpu_usage / 100.0
     memory_percentage = memory_usage / 100.0
     disk_percentage = disk_usage / 100.0
-    cpu_bar = '█' * int(cpu_percentage * bars) + '-' * int(bars - cpu_percentage * bars)
-    memory_bar = '█' * int(memory_percentage * bars) + '-' * int(bars - memory_percentage * bars)
-    disk_bar = '█' * int(disk_percentage * bars) + '-' * int(bars - disk_percentage * bars)
+    # cpu_bar = '█' * int(cpu_percentage * bars) + '-' * int(bars - cpu_percentage * bars)
+    # memory_bar = '█' * int(memory_percentage * bars) + '-' * int(bars - memory_percentage * bars)
+    # disk_bar = '█' * int(disk_percentage * bars) + '-' * int(bars - disk_percentage * bars)
     # print(f'CPU Usage: {cpu_usage}% \n |{cpu_bar}|')
     # print(f'Memory Usage: {memory_usage}% \n |{memory_bar}|')
     # print(f'Disk Usage: {disk_usage}% \n |{disk_bar}|')
