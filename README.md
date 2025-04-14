@@ -11,3 +11,8 @@ pymongo,
 python-docx,
 python-xlrd,
 python-pptx
+
+
+will need to download ollama
+
+downlaod the following model via term : gemma3:1b
