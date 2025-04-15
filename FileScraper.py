@@ -11,6 +11,14 @@ from win32com.client import Dispatch
 import xlrd
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+from PyPDF2 import PdfReader
+from wordsegment import load as load_wordsegment, segment
+from symspellpy import SymSpell, Verbosity
+from nltk.corpus import words as nltk_words
+import re
 
 def timer(func):
     @wraps(func)
@@ -40,12 +48,81 @@ def read_doc_file(file_path):
     word.Quit()
     return file_data
 
+def clean_pdf_text(file_path: str) -> str:
+    """
+    Reads a PDF file, removes stop words, lemmatizes text, and returns cleaned text.
+
+    Args:
+        file_path (str): Path to the PDF file.
+
+    Returns:
+        str: Cleaned text from the PDF.
+    """
+    # Initialize lemmatizer, SymSpell, and WordSegment
+    lemmatizer = WordNetLemmatizer()
+    sym_spell = SymSpell(max_dictionary_edit_distance=2, prefix_length=7)
+    sym_spell.load_dictionary("frequency_dictionary_en_82_765.txt", term_index=0, count_index=1)
+    load_wordsegment()  # Load WordSegment model
+
+    # Load stop words and English words
+    stop_words = set(stopwords.words('english'))
+    english_words = set(nltk_words.words())
+
+    try:
+        with open(file_path, 'rb') as pdf_file:
+            reader = PdfReader(pdf_file)
+            text = ''
+
+            # Extract text from all pages
+            for page in reader.pages:
+                page_text = page.extract_text() + ' '
+                text += page_text
+
+            # Clean and tokenize text
+            text = re.sub(r'[^a-zA-Z\s]', '', text)
+            tokens = word_tokenize(text)
+
+            corrected_tokens = []
+            for token in tokens:
+                # Skip stop words
+                if token.lower() in stop_words:
+                    continue
+
+                # Use WordSegment to split concatenated words
+                segmented_words = segment(token)
+
+                for word in segmented_words:
+                    # Spell correction with SymSpell
+                    suggestions = sym_spell.lookup(word, Verbosity.CLOSEST, max_edit_distance=2)
+                    corrected_word = suggestions[0].term if suggestions else word
+                    # Lemmatize the corrected word
+                    lemmatized_word = lemmatizer.lemmatize(corrected_word)
+                    # Remove 2 or 3 letter words not in the English dictionary, except "ai"
+                    if len(lemmatized_word) > 3 or lemmatized_word in english_words or lemmatized_word == "ai":
+                        corrected_tokens.append(lemmatized_word)
+
+            # Combine cleaned tokens into a single string
+            cleaned_text = ' '.join(corrected_tokens)
+            return cleaned_text
+    except Exception as e:
+        print(f"Error reading PDF {file_path}: {e}")
+        return ""
+
 def get_file_info(file_path):
+    """
+    Extracts file information and processes the file content based on its type.
+
+    Args:
+        file_path (str): Path to the file.
+
+    Returns:
+        tuple: File name, file type, file size, and file data.
+    """
     file_name = os.path.basename(file_path)
     file_type = os.path.splitext(file_path)[1]
     file_size = os.path.getsize(file_path)
     file_data = ""
-    
+
     try:
         if file_type.lower() == ".doc":
             file_data = read_doc_file(file_path)
@@ -61,12 +138,14 @@ def get_file_info(file_path):
         elif file_type.lower() in [".ppt", ".pptx"]:
             prs = Presentation(file_path)
             file_data = ' '.join([shape.text for slide in prs.slides for shape in slide.shapes if hasattr(shape, "text")])
-        elif file_type.lower() != ".pdf":
+        elif file_type.lower() == ".pdf":
+            file_data = clean_pdf_text(file_path)  # Use the new PDF cleaning function
+        else:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
                 file_data = file.read().replace('\n', ' ').replace('\r', ' ')
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
-    
+
     return file_name, file_type, file_size, file_data
 
 @timer
@@ -136,7 +215,7 @@ def main():
         "*.txt", "*.md",  # Existing file types
         "*.pdf",          # PDF files
         "*.doc", "*.docx",# Microsoft Word files
-        # "*.xls", "*.xlsx",# Microsoft Excel files
+        "*.xls", "*.xlsx",# Microsoft Excel files
         "*.ppt", "*.pptx" # Microsoft PowerPoint files
     ]
     
