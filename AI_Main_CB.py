@@ -37,7 +37,7 @@ def main():
         {"role": "user", "content": "Hello!"}
     ]
 
-    file_path = "c:\\Users\gavin\OneDrive\Documents\GitHub\Gaduate_skill_Showcase\Graduate-Skill-showcase\diabetes_012_health_indicators_BRFSS2015.csv"  # Replace file
+    file_path = "c:\\Users\gavin\Desktop\idbm_top_1000.csv"  # Replace file
     data = load_data(file_path)
     data_context = prepare_data_for_model(data)
     
