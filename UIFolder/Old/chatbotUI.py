@@ -1,34 +1,25 @@
 import sys
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QTextEdit, QTabWidget, QSplitter)
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-import matplotlib.pyplot as plt
-import google.generativeai as genai
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
+                            QPushButton, QTextEdit, QTabWidget, QSplitter)
 from PyQt6.QtCore import Qt
-from functools import partial
-
-# file imports
-from performance.update import do_update
+import google.generativeai as genai
 
 
-
-
-# main window
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-
+        
         # Initialize Gemini API
         genai.configure(api_key="")  # API key will need to be set
         self.model = genai.GenerativeModel('gemini-1.5-pro-latest')
         self.chat = self.model.start_chat(history=[])
         
-        # Sets window properties
-        self.setWindowTitle("testUIShell")
+        # Set window properties
+        self.setWindowTitle("Chatbot UI")
         self.setGeometry(100, 100, 800, 600)
         
-        # Create main tab widget
+        # Create the main tab widget
         self.tab_widget = QTabWidget()
-        self.setCentralWidget(self.tab_widget)
         
         # Create and add input tab
         self.input_tab = QWidget()
@@ -37,16 +28,18 @@ class MainWindow(QMainWindow):
         # Create and add performance tab
         self.performance_tab = QWidget()
         self.tab_widget.addTab(self.performance_tab, "Performance")
-
+        
         # Create and add settings tab
         self.settings_tab = QWidget()
         self.tab_widget.addTab(self.settings_tab, "Settings")
         
-        # Sets up tabs
+        # Setup tabs
         self.setup_input_tab()
-        self.setup_performance_tab()
         self.setup_settings_tab()
-    
+        
+        # Set the tab widget as the central widget
+        self.setCentralWidget(self.tab_widget)
+
     def setup_input_tab(self):
         # Create layout for input tab
         layout = QVBoxLayout(self.input_tab)
@@ -86,6 +79,11 @@ class MainWindow(QMainWindow):
         # Add splitter to main layout
         layout.addWidget(splitter)
 
+    def setup_settings_tab(self):
+        # Create layout for the settings tab
+        layout = QVBoxLayout(self.settings_tab)
+        # This is left empty as in the original
+
     def get_ai_response(self, prompt):
         try:
             response = self.chat.send_message(prompt)
@@ -110,41 +108,11 @@ class MainWindow(QMainWindow):
             # Clear the input field after sending
             self.input_text.clear()
 
-
-    
-    def setup_performance_tab(self):
-        # Create layout for performance tab
-        layout = QVBoxLayout(self.performance_tab)
-        
-        # Create a matplotlib figure and canvas
-        self.fig, self.ax = plt.subplots(3, 1, figsize=(10, 8))
-        self.canvas = FigureCanvas(self.fig)
-        
-        # Add the canvas to the layout
-        layout.addWidget(self.canvas)
-
-        # Add button to start/stop performance monitoring
-        self.start_performance_button = QPushButton("Start/Stop Tracking")
-        self.start_performance_button.setCheckable(True)  # Make the button toggleable
-        self.start_performance_button.clicked.connect(
-            lambda: do_update(self.start_performance_button.isChecked(), self.ax)
-        )
-        layout.addWidget(self.start_performance_button)
-    
-    def setup_settings_tab(self):
-        # Create layout for the settings tab
-        layout = QVBoxLayout(self.settings_tab)
-        
-        # Add a placeholder text
-        settings_info = QTextEdit()
-        settings_info.setReadOnly(True)
-        settings_info.setPlaceholderText("Settings options will go here")
-        
-        layout.addWidget(settings_info)
-
-
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()
