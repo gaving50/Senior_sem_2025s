@@ -23,12 +23,11 @@ def display_resource_usage(cpu_usage, memory_usage, disk_usage, bars, cpu_usage_
     time_data.append(time.time())
 
     # Limit the data to the last 10 seconds
-    cpu_usage_data = cpu_usage_data[-10:]
-    memory_usage_data = memory_usage_data[-10:]
-    disk_usage_data = disk_usage_data[-10:]
-    time_data = time_data[-10:]
-
-
+    if len(cpu_usage_data) > 20:
+        cpu_usage_data.pop(0)
+        memory_usage_data.pop(0)
+        disk_usage_data.pop(0)
+        time_data.pop(0)
 
     # Update the plots
     ax[0].cla()
@@ -48,6 +47,7 @@ def display_resource_usage(cpu_usage, memory_usage, disk_usage, bars, cpu_usage_
     ax[1].legend()
     ax[2].legend()
 
-    plt.pause(0.5)
-
-
+    #Adjusts bottom of graph to fit better
+    plt.subplots_adjust(bottom=0.2)  
+    
+    plt.tight_layout(pad=3.0)  

@@ -11,9 +11,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 # Import external modules
-from performance.display import display_resource_usage
-from performance.get_stuff_and_things import get_resource_usage
-from performance.update import do_update, cpu_usage_data, memory_usage_data, disk_usage_data, time_data
+from display import display_resource_usage
+from get_stuff_and_things import get_resource_usage
+from update import do_update, cpu_usage_data, memory_usage_data, disk_usage_data, time_data
 from theme import apply_theme
 
 class MainWindow(QMainWindow):
@@ -76,7 +76,7 @@ class MainWindow(QMainWindow):
         # Create the text input
         self.input_text = QTextEdit()
         self.input_text.setPlaceholderText("Enter your text here...")
-        self.input_text.setMaximumHeight(100)  # Limit height of input area
+        self.input_text.setMaximumHeight(100)  # Limits height of input area
         
         # Create send button
         self.send_button = QPushButton("Send")
@@ -100,7 +100,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(self.performance_tab)
         
         # Create the matplotlib figure for plotting
-        plt.ioff()  # Prevents seperate window
+        plt.ioff()  # Prevents seperate window from opening
         self.figure, self.ax = plt.subplots(3, 1, figsize=(8, 6))
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
@@ -109,7 +109,7 @@ class MainWindow(QMainWindow):
         control_widget = QWidget()
         control_layout = QHBoxLayout(control_widget)
         
-        # Mmonitoring label
+        # Monitering label
         monitor_label = QLabel("Resource Monitoring:")
         control_layout.addWidget(monitor_label)
         
@@ -127,6 +127,9 @@ class MainWindow(QMainWindow):
         
         # Initialize the plot with tight layout
         self.figure.tight_layout()
+        
+        # Apply initial theme to the matplotlib plots
+        apply_theme(self.dark_theme_enabled, canvas=self.canvas, axes=self.ax)
 
     def setup_settings_tab(self):
         # Create layout for the settings tab
@@ -164,27 +167,26 @@ class MainWindow(QMainWindow):
             self.canvas.flush_events()
 
     def on_tab_changed(self, index):
-        # When leaving the performance tab, stop monitoring
+        # When you leave the performance tab, the monitering stops
         if index != 1 and hasattr(self, 'monitoring_toggle') and self.monitoring_toggle.isChecked():
             self.monitoring_toggle.setChecked(False)
 
     def process_input(self):
-        # Get input text
+        # Gets input text
         input_text = self.input_text.toPlainText().strip()
         if input_text:
-            # Display input in the output area
+            # Displays input in output area to show conversation
             self.output_text.append(f"You: {input_text}")
             
-            # Placeholder for AI response
+            # Placeholder for the AI
             self.output_text.append("Jarvis: Sorry, AI integration is currently unavailable.")
             
-            # Clear input field after sending
+            # Clears the input field after sending
             self.input_text.clear()
-
+            
     def toggle_theme(self, state):
         self.dark_theme_enabled = bool(state)
-        # Use the external theme module
-        apply_theme(self.dark_theme_enabled, self.canvas if hasattr(self, 'canvas') else None)
+        apply_theme(self.dark_theme_enabled, canvas=self.canvas if hasattr(self, 'canvas') else None, axes=self.ax if hasattr(self, 'ax') else None)
 
 def main():
     app = QApplication(sys.argv)
