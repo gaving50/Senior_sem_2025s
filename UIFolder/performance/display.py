@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 # cpu_usage: cpu usage percentage
 # memory_usage: memory usage percentage
 # disk_usage: disk usage percentage
+# bars: number of bars to display
 def display_resource_usage(cpu_usage, memory_usage, disk_usage, bars, cpu_usage_data, memory_usage_data, disk_usage_data, time_data, ax):
     cpu_percentage = cpu_usage / 100.0
     memory_percentage = memory_usage / 100.0

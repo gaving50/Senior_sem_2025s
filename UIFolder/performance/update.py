@@ -1,7 +1,7 @@
 import time
-from display import display_resource_usage
-from get_stuff_and_things import get_resource_usage
-from get_stuff_and_things import get_process_resource_usage
+from .display import display_resource_usage
+from .get_stuff_and_things import get_resource_usage
+from .get_stuff_and_things import get_process_resource_usage
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import QTimer
 import sys

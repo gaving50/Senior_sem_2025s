@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
                             QPushButton, QTextEdit, QTabWidget, QSplitter,
                             QLabel, QLineEdit, QMessageBox, QHBoxLayout,
@@ -11,14 +12,18 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 # Import external modules
-from display import display_resource_usage
-from get_stuff_and_things import get_resource_usage
-from update import do_update, cpu_usage_data, memory_usage_data, disk_usage_data, time_data
+# from .performance.display import display_resource_usage
+# from .performance.get_stuff_and_things import get_resource_usage
+from performance.update import do_update, cpu_usage_data, memory_usage_data, disk_usage_data, time_data
 from theme import apply_theme
+from AI_Main_CB import AIModel  # Import the refactored AIModel class
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        # Initialize AI model
+        self.ai = AIModel()  # Create an instance of the AIModel class
         
         # Dark theme flag
         self.dark_theme_enabled = False
@@ -172,16 +177,20 @@ class MainWindow(QMainWindow):
             self.monitoring_toggle.setChecked(False)
 
     def process_input(self):
-        # Gets input text
+        # Get input text
         input_text = self.input_text.toPlainText().strip()
         if input_text:
-            # Displays input in output area to show conversation
+            # Display input in output area to show conversation
             self.output_text.append(f"You: {input_text}")
             
-            # Placeholder for the AI
-            self.output_text.append("Jarvis: Sorry, AI integration is currently unavailable.")
+            # Get AI response
+            try:
+                ai_response = self.ai.get_response(input_text)  # Use the AIModel's get_response method
+                self.output_text.append(f"Jarvis: {ai_response}")
+            except Exception as e:
+                self.output_text.append(f"Jarvis: Sorry, I encountered an error: {e}")
             
-            # Clears the input field after sending
+            # Clear the input field after sending
             self.input_text.clear()
             
     def toggle_theme(self, state):
