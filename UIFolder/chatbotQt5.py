@@ -14,7 +14,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 # Import external modules
 # from .performance.display import display_resource_usage
 # from .performance.get_stuff_and_things import get_resource_usage
-from performance.update import do_update, cpu_usage_data, memory_usage_data, disk_usage_data, time_data
+from performance.update import do_update, cpu_usage_data, memory_usage_data, gpu_usage_data, time_data
 from theme import apply_theme
 from AI_Main_CB import AIModel  # Import the refactored AIModel class
 
@@ -173,8 +173,9 @@ class MainWindow(QMainWindow):
 
     def on_tab_changed(self, index):
         # When you leave the performance tab, the monitering stops
-        if index != 1 and hasattr(self, 'monitoring_toggle') and self.monitoring_toggle.isChecked():
-            self.monitoring_toggle.setChecked(False)
+        # if index != 1 and hasattr(self, 'monitoring_toggle') and self.monitoring_toggle.isChecked():
+        #     self.monitoring_toggle.setChecked(False)
+        pass  # Placeholder for future functionality
 
     def process_input(self):
         # Get input text

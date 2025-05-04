@@ -1,5 +1,6 @@
 import ollama
 import psutil
+import GPUtil
 
 
 
@@ -9,8 +10,8 @@ import psutil
 def get_resource_usage():
     cpu_usage = psutil.cpu_percent()
     memory_usage = psutil.virtual_memory().percent
-    disk_usage = psutil.disk_usage('/').percent
-    return cpu_usage, memory_usage, disk_usage
+    gpu_usage = get_process_gpu_usage("ollama")
+    return cpu_usage, memory_usage, gpu_usage
 
 
 
@@ -34,11 +35,28 @@ def get_process_resource_usage(process_name):
 
 
 # gets the resource usage of the ollama process
-# returns cpu usage, memory usage
+# returns cpu usage, memory usage, gpu usage
 # returns the pid of the ollama process
 def get_ollama_resource_usage():
     pid = get_process_pid("ollama")
     process = psutil.Process(pid)
     cpu_usage = process.cpu_percent()
     memory_usage = process.memory_percent()
-    return cpu_usage, memory_usage
+
+    # Get GPU usage
+    gpus = GPUtil.getGPUs()
+    if gpus:
+        gpu_usage = gpus[0].load * 100  # Assuming the first GPU
+    else:
+        gpu_usage = 0.0  # No GPU detected or available
+
+    return cpu_usage, memory_usage, gpu_usage
+
+
+# gets the gpu usage of an external process
+# process_name: name of the process
+def get_process_gpu_usage(process_name):
+    pid = get_process_pid(process_name)
+    process = psutil.Process(pid)
+    gpu_usage = process.gpu_percent()
+    return gpu_usage
