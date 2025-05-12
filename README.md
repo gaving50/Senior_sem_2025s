@@ -1,19 +1,10 @@
 iexpress wizard to create .exe files
 
-
+to start in virtual environment:
+.\.venv\Scripts\activate
 packags needed for use: 
-pip install 
-google-generativeai,
-pyqt6,
-pymongo,
-python-docx,
-python-xlrd,
-python-pptx,
-ipython python-dotenv,
-langchain langchain-community faiss-cpu ollama, <!-- faiss-cpu is needed, faiss-gpu only works on cuda GPUs -->
--U langchain-community
-
-will need to download ollama
+look in requirements.txt <!-- pip install -r requirements.txt -->
+pigar <!-- used to generated requirements.txt or overwrite it>
 
 downlaod the following model via term : 
 
